@@ -7,14 +7,12 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        targetplatform: [x64]
-
     runs-on: windows-latest
 
     env:
       Solution_Path: WpfAppDeploy.sln
+      Project_Path: WpfAppDeploy.csproj
+      Zip_Path: Zip
       Publish_Path: publish
       Configuration: Release
       Actions_Allow_Unsecure_Commands: true # Allows AddPath and SetEnv commands
@@ -30,41 +28,29 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
-    - name: MSBuild
-      uses: microsoft/setup-msbuild@v1.1
-      
     - name: Restore
-      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
-      env:
-        Configuration: ${{ env.Configuration }}
-        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+      run: dotnet restore $env:Solution_Path
 
     - name: Publish
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=${{ env.Configuration }} /p:PublishDir="${{ env.Publish_Path }}\"
-      env:
-        TargetPlatform: ${{ matrix.targetplatform }}  
+      run: dotnet publish -c ${{ env.Configuration }} .\${{ env.Project_Path }} -o "${{ env.Publish_Path }}"
     
     - name: Create Zip Directory
-      run: New-Item -Path "${{ env.Publish_Path }}\Zip" -ItemType Directory
+      run: New-Item -Path ${{ env.Zip_Path }} -ItemType Directory
     
     - name: Zip
-      run: Compress-Archive -Path ${{ env.Publish_Path }}\* -DestinationPath ${{ env.Publish_Path }}\Zip\App.zip
+      run: Compress-Archive -Path ${{ env.Publish_Path }}\* -DestinationPath ${{ env.Zip_Path }}\App.zip
       shell: pwsh
       
     - name: List Zip
-      run:  Get-ChildItem -Path ${{ env.Publish_Path }}\Zip
+      run:  Get-ChildItem -Path ${{ env.Zip_Path }} | echo
       shell: pwsh
       
-    - name: Echo
-      run:  echo "${{ env.Publish_Path }}\Zip"
-      shell: pwsh
-
     - name: FTP
       uses: SamKirkland/FTP-Deploy-Action@4.2.0
       with:
         server: clientes.iasoft.es
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # local-dir: ${{ env.Publish_Path }}/Zip/
+        # local-dir: ${{ env.Zip_Path }}/
         server-dir: /salida/Sin_clasificar/deploy/
         log-level: verbose
