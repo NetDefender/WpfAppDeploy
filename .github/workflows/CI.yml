@@ -56,5 +56,5 @@ jobs:
         server: clientes.iasoft.es
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./${{ env.Publish_Path }}/Zip/
+        local-dir: ${{ env.Publish_Path }}\Zip\
         server-dir: /salida/Sin_clasificar/
