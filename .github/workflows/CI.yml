@@ -20,20 +20,26 @@ jobs:
       Actions_Allow_Unsecure_Commands: true # Allows AddPath and SetEnv commands
 
     steps:
-    - name: Checkout
+    - name: Tool - Checkout
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
 
-    - name: Install .NET Core
+    - name: Tool - .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
 
-    - name: Setup MSBuild.exe
+    - name: Tool - MSBuild
       uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Invoke - MSBuild Restore
+      run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      env:
+        Configuration: ${{ env.Configuration }}
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
 
-    - name: MSBuild Windows Application
+    - name: Invoke - MSBuild Publish
       run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=${{ env.Configuration }} /p:PublishDir="${{ env.Publish_Path }}\"
       env:
         TargetPlatform: ${{ matrix.targetplatform }}  
