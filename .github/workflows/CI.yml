@@ -20,33 +20,41 @@ jobs:
       Actions_Allow_Unsecure_Commands: true # Allows AddPath and SetEnv commands
 
     steps:
-    - name: Tool - Checkout
+    - name: Checkout
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
 
-    - name: Tool - .NET Core
+    - name: .NET Core
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
 
-    - name: Tool - MSBuild
+    - name: MSBuild
       uses: microsoft/setup-msbuild@v1.1
       
-    - name: Invoke - MSBuild Restore
+    - name: Restore
       run: msbuild $env:Solution_Path /t:Restore /p:Configuration=$env:Configuration /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
         Configuration: ${{ env.Configuration }}
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
 
-    - name: Invoke - MSBuild Publish
+    - name: Publish
       run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=${{ env.Configuration }} /p:PublishDir="${{ env.Publish_Path }}\"
       env:
         TargetPlatform: ${{ matrix.targetplatform }}  
     
-    - name: Invoke - Create Zip Directory
+    - name: Create Zip Directory
       run: New-Item -Path "${{ env.Publish_Path }}\Zip" -ItemType Directory
     
-    - name: Invoke - Zip
+    - name: Zip
       run: Compress-Archive -Path "${{ env.Publish_Path }}\*" -DestinationPath "${{ env.Publish_Path }}\Zip\App.zip"
 
+    - name: FTP
+      uses: SamKirkland/FTP-Deploy-Action@4.2.0
+      with:
+        server: clientes.iasoft.es
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ${{ env.Publish_Path }}/Zip/
+        server-dir: /salida/Sin_clasificar/
