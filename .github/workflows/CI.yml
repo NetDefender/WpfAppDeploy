@@ -51,6 +51,6 @@ jobs:
         server: clientes.iasoft.es
         username: ${{ secrets.FTP_USER }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # local-dir: ${{ env.Zip_Path }}/
+        local-dir: ${{ env.Zip_Path }}/
         server-dir: /salida/Sin_clasificar/deploy/
         log-level: verbose
