@@ -1,0 +1,40 @@
+name:  Wpf Continuous Integration
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        targetplatform: [x64]
+
+    runs-on: windows-latest
+
+    env:
+      Solution_Path: WpfAppDeploy.sln
+      Publish_Path: publish
+      Configuration: Release
+      Actions_Allow_Unsecure_Commands: true # Allows AddPath and SetEnv commands
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: MSBuild Windows Application
+      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=${{ env.Configuration }} /p:PublishDir="${{ env.Publish_Path }}\"
+      env:
+        TargetPlatform: ${{ matrix.targetplatform }}  
+
