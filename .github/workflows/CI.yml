@@ -43,4 +43,7 @@ jobs:
       run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=${{ env.Configuration }} /p:PublishDir="${{ env.Publish_Path }}\"
       env:
         TargetPlatform: ${{ matrix.targetplatform }}  
+    
+    - name: Invoke - Zip
+      run: Compress-Archive -Path "${{ env.Publish_Path }}\*" -DestinationPath "${{ env.Publish_Path }}\Zip\App.zip"
 
