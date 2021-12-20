@@ -49,6 +49,9 @@ jobs:
     
     - name: Zip
       run: Compress-Archive -Path "${{ env.Publish_Path }}\*" -DestinationPath "${{ env.Publish_Path }}\Zip\App.zip"
+    
+    - name: List Zip
+      run:  Get-ChildItem -Path "${{ env.Publish_Path }}\Zip"
 
     - name: FTP
       uses: SamKirkland/FTP-Deploy-Action@4.2.0
@@ -58,3 +61,4 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ${{ env.Publish_Path }}/Zip/
         server-dir: /salida/Sin_clasificar/
+        log-level: verbose
