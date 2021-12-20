@@ -48,10 +48,16 @@ jobs:
       run: New-Item -Path "${{ env.Publish_Path }}\Zip" -ItemType Directory
     
     - name: Zip
-      run: Compress-Archive -Path "${{ env.Publish_Path }}\*" -DestinationPath "${{ env.Publish_Path }}\Zip\App.zip"
-    
+      run: Compress-Archive -Path ${{ env.Publish_Path }}\* -DestinationPath ${{ env.Publish_Path }}\Zip\App.zip
+      shell: pwsh
+      
     - name: List Zip
-      run:  Get-ChildItem -Path "${{ env.Publish_Path }}\Zip"
+      run:  Get-ChildItem -Path ${{ env.Publish_Path }}\Zip
+      shell: pwsh
+      
+    - name: Echo
+      run:  echo "${{ env.Publish_Path }}\Zip"
+      shell: pwsh
 
     - name: FTP
       uses: SamKirkland/FTP-Deploy-Action@4.2.0
