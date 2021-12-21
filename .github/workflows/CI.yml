@@ -2,9 +2,9 @@ name:  Wpf Continuous Integration
 
 on:
   workflow_dispatch:
-  #push:
-    #branches:
-      #- master
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -28,9 +28,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0.x'
-
-    - name: Restore
-      run: dotnet restore $env:Solution_Path
 
     - name: Publish
       run: dotnet publish -c ${{ env.Configuration }} .\${{ env.Project_Path }} -o "${{ env.Publish_Path }}"
